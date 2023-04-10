@@ -158,7 +158,7 @@ std::optional<std::string> Project::get_TB_ACCESTOKEN()
     /* std::string apikey; */
     try
     {
-        result = getenv("TB_ACCESSTOKEN");
+        result = (std::string) getenv("TB_ACCESSTOKEN");
         /* std::getline(envfile, apikey, '='); */
         /* std::getline(envfile, apikey, '\n'); */
         /* std::getline(envfile, apikey, '='); */
@@ -181,7 +181,7 @@ std::optional<std::string> Project::get_api_key()
     /* std::string apikey; */
     try
     {
-        result = getenv("APIKEY");
+        result = (std::string)getenv("APIKEY");
         /* std::getline(envfile, apikey, '='); */
         /* std::getline(envfile, apikey, '\n'); */
     }
