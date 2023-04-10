@@ -5,6 +5,9 @@
 #include <fstream>
 #include <optional>
 #include <utility>
+#include <thread>
+
+using namespace std::literals;
 
 typedef double f64;
 
@@ -15,6 +18,7 @@ class Project
         Project();
         std::optional<std::string> get_api_key();
         std::optional<std::pair<f64,f64>> get_stock_price();
+        void update_ThingBoard();
     private:
         std::string APIKEY;
 
@@ -22,6 +26,7 @@ class Project
         std::optional<std::pair<f64,f64>> parse_price(std::string input);
         static
         size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
+        bool send_ThingsBoard(std::pair<f64,f64> price);
 };
 
 Project::Project()
@@ -39,9 +44,29 @@ Project::Project()
         std::cout << "Someting went wrong with the getting stock price\n";
         exit(1);
     }
-    std::cout << test->first << std::endl;
-    std::cout << test->second << std::endl;
+    /* std::cout << test->first << std::endl; */
+    /* std::cout << test->second << std::endl; */
 };
+
+bool Project::send_ThingsBoard(std::pair<f64,f64> price)
+{
+    //todo: implement this
+    return true;
+}
+
+void Project::update_ThingBoard()
+{
+    auto price = this->get_stock_price();
+    if (!price.has_value())
+        return;
+    if (!this->send_ThingsBoard(price.value()))
+    {
+        std::cout << "Could not send to ThingsBoard\n";
+        return;
+    }
+    //sleep()
+    std::this_thread::sleep_for(60s);
+}
 
 std::optional<std::pair<f64,f64>> Project::parse_price(std::string input)
 {
@@ -117,8 +142,6 @@ std::optional<std::pair<f64,f64>> Project::get_stock_price()
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
     res = curl_easy_perform(curl);
     curl_easy_cleanup(curl);
-    /* std::cout << res << std::endl; */
-    /* std::cout << readBuffer << std::endl; */
     if (res)
         return std::nullopt;
 
@@ -129,4 +152,6 @@ std::optional<std::pair<f64,f64>> Project::get_stock_price()
 int main(void)
 {
     Project temp = Project();
+    for(;;)
+        temp.update_ThingBoard();
 }
