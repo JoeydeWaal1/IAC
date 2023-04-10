@@ -18,9 +18,6 @@ main: $(OBJS)
 	$(CXX) $(CCFLAGS) -c -o $@ $^
 
 clean:
-		rm -f $(BIN_DIR)/*
-		rm -f $(SRC_DIR)/*.o
-		rm -f lib/*/include/*.o
-		rm -f include/*.o
+		rm -f *.o
 run:
 	./main
