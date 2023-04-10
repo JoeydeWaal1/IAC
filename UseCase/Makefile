@@ -2,8 +2,7 @@ CXX =  clang++
 LD  =  clang++
 
 CCFLAGS  = -std=c++2a
-CCFLAGS += -Iinclude
-CCFLAGS += -lcurl
+CCFLAGS += -o3
 
 LINKFLAGS  = -lcurl
 
@@ -13,7 +12,7 @@ OBJS   = $(CPPSRC:.cpp=.o)
 all: main
 
 main: $(OBJS)
-	$(CXX) -o $@ $(LINKFLAGS) $@.o
+	$(LD) -o $@ $(LINKFLAGS) $@.o
 
 %.o: %.cpp
 	$(CXX) $(CCFLAGS) -c -o $@ $^
