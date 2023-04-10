@@ -16,17 +16,20 @@ class Project
 {
     public:
         Project();
-        std::optional<std::string> get_api_key();
+        std::optional<std::string>        get_api_key();
         std::optional<std::pair<f64,f64>> get_stock_price();
         void update_ThingBoard();
     private:
         std::string APIKEY;
+        std::string TB_USERNAME    = "tenant@thingsboard.org";
+        std::string TB_PASSWORD    = "tenant";
+        std::string TB_ACCESSTOKEN;
+        std::string TB_URL         = "http://127.0.0.1:8080/api/v1/";
 
-        inline
-        std::optional<std::pair<f64,f64>> parse_price(std::string input);
-        static
-        size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
-        bool send_ThingsBoard(std::pair<f64,f64> price);
+        inline std::optional<std::pair<f64,f64>> parse_price(std::string input);
+        static size_t                            WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
+        bool                                     send_ThingsBoard(std::pair<f64,f64> price);
+        std::optional<std::string>               get_TB_ACCESTOKEN();
 };
 
 Project::Project()
@@ -34,10 +37,22 @@ Project::Project()
     std::optional<std::string> apikey = this->get_api_key();
     if (!apikey.has_value())
     {
-        std::cout << "Someting went wrong with the apikey\n";
+        std::cout << "Someting went wrong with the stockprice apikey\n";
         exit(1);
     }
     this->APIKEY = apikey.value();
+
+    std::optional<std::string> tb_apikey = this->get_TB_ACCESTOKEN();
+    if (!tb_apikey.has_value())
+    {
+        std::cout << "Someting went wrong with the ThingsBoard apikey\n";
+        exit(1);
+    }
+    this->TB_URL.append(tb_apikey.value());
+    this->TB_URL.append("/telementy");
+    this->TB_ACCESSTOKEN = tb_apikey.value();
+
+    return;
     auto test = this->get_stock_price();
     if (!test.has_value())
     {
@@ -50,7 +65,31 @@ Project::Project()
 
 bool Project::send_ThingsBoard(std::pair<f64,f64> price)
 {
+    CURL *curl;
+    CURLcode res;
+    std::string data = "lowestPrice=";
+    data.append(std::to_string(price.first));
+    data.append("&highestPrice=");
+    data.append(std::to_string(price.second));
+    std::string readBuffer;
+    curl = curl_easy_init();
+
+    //check if curl works
+    if(!curl)
+        return false;
+
+    curl_easy_setopt(curl, CURLOPT_URL, this->TB_URL.c_str());
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, this->WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+    res = curl_easy_perform(curl);
+    curl_easy_cleanup(curl);
+    if (res)
+        return false;
+
+    /* auto price = this->parse_price(readBuffer); */
     //todo: implement this
+    std::cout << readBuffer << std::endl;
     return true;
 }
 
@@ -64,6 +103,9 @@ void Project::update_ThingBoard()
         std::cout << "Could not send to ThingsBoard\n";
         return;
     }
+    std::cout << price->first << std::endl;
+    std::cout << price->second << std::endl;
+
     //sleep()
     std::this_thread::sleep_for(60s);
 }
@@ -99,6 +141,28 @@ std::optional<std::pair<f64,f64>> Project::parse_price(std::string input)
     }
 }
 
+std::optional<std::string> Project::get_TB_ACCESTOKEN()
+{
+    std::string result;
+    std::ifstream envfile(".env");
+    if (!envfile.is_open())
+        return std::nullopt;
+    std::string apikey;
+    try
+    {
+        std::getline(envfile, apikey, '=');
+        std::getline(envfile, apikey, '\n');
+        std::getline(envfile, apikey, '=');
+        std::getline(envfile, apikey, '\n');
+        /* std::cout << apikey << std::endl; */
+    }
+    catch (...)
+    {
+        return std::nullopt;
+    }
+    return apikey;
+}
+
 std::optional<std::string> Project::get_api_key()
 {
     std::string result;
@@ -118,7 +182,7 @@ std::optional<std::string> Project::get_api_key()
     return apikey;
 }
 
-size_t Project::WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
+size_t Project::WriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
 {
     ((std::string*)userp)->append((char*)contents, size * nmemb);
     return size * nmemb;
@@ -152,6 +216,6 @@ std::optional<std::pair<f64,f64>> Project::get_stock_price()
 int main(void)
 {
     Project temp = Project();
-    for(;;)
-        temp.update_ThingBoard();
+    /* for(;;) */
+    /*     temp.update_ThingBoard(); */
 }
