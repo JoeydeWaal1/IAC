@@ -24,7 +24,7 @@ class Project
         std::string TB_USERNAME    = "tenant@thingsboard.org";
         std::string TB_PASSWORD    = "tenant";
         std::string TB_ACCESSTOKEN;
-        std::string TB_URL         = "http://127.0.0.1:8080/api/v1/";
+        std::string TB_URL         = "http://localhost:8080/api/v1/";
 
         inline std::optional<std::pair<f64,f64>> parse_price(std::string input);
         static size_t                            WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
@@ -49,16 +49,19 @@ Project::Project()
         exit(1);
     }
     this->TB_URL.append(tb_apikey.value());
-    this->TB_URL.append("/telementy");
+    this->TB_URL.append("/telemetry");
     this->TB_ACCESSTOKEN = tb_apikey.value();
 
-    return;
+    /* return; */
     auto test = this->get_stock_price();
     if (!test.has_value())
     {
         std::cout << "Someting went wrong with the getting stock price\n";
         exit(1);
     }
+    std::cout << test->first << std::endl;
+    std::cout << test->second << std::endl;
+    this->send_ThingsBoard(test.value());
     /* std::cout << test->first << std::endl; */
     /* std::cout << test->second << std::endl; */
 };
@@ -67,10 +70,11 @@ bool Project::send_ThingsBoard(std::pair<f64,f64> price)
 {
     CURL *curl;
     CURLcode res;
-    std::string data = "lowestPrice=";
+    std::string data = "{\"lowestPrice\"=\"";
     data.append(std::to_string(price.first));
-    data.append("&highestPrice=");
+    data.append("\",\"highestPrice\"=\"");
     data.append(std::to_string(price.second));
+    data.append("\"}");
     std::string readBuffer;
     curl = curl_easy_init();
 
@@ -78,6 +82,10 @@ bool Project::send_ThingsBoard(std::pair<f64,f64> price)
     if(!curl)
         return false;
 
+    struct curl_slist* headers = NULL;
+    headers = curl_slist_append(headers, "Content-Type: application/json");
+
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_URL, this->TB_URL.c_str());
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, this->WriteCallback);
@@ -216,6 +224,6 @@ std::optional<std::pair<f64,f64>> Project::get_stock_price()
 int main(void)
 {
     Project temp = Project();
-    /* for(;;) */
-    /*     temp.update_ThingBoard(); */
+    for(;;)
+        temp.update_ThingBoard();
 }
