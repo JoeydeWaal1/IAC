@@ -1,0 +1,9 @@
+version: '3.0'
+services:
+  usecase:
+    image: joeydewaal/usecase
+    env_file:
+      - .env
+    # environment:
+    #   - APIKEY=p5irtn38gZv1_IX4pBKBCLYqTCHC4dIf
+    #   - TB_ACCESSTOKEN=Q537PNgCtg92vhOF0MW1

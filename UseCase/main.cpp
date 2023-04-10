@@ -7,6 +7,7 @@
 #include <utility>
 #include <thread>
 
+
 using namespace std::literals;
 
 typedef double f64;
@@ -16,6 +17,7 @@ class Project
 {
     public:
         Project();
+        Project(std::string arg1, std::string arg2);
         std::optional<std::string>        get_api_key();
         std::optional<std::pair<f64,f64>> get_stock_price();
         void update_ThingBoard();
@@ -32,36 +34,39 @@ class Project
         std::optional<std::string>               get_TB_ACCESTOKEN();
 };
 
-Project::Project()
+Project::Project(std::string arg1, std::string arg2)
 {
-    std::optional<std::string> apikey = this->get_api_key();
-    if (!apikey.has_value())
-    {
-        std::cout << "Someting went wrong with the stockprice apikey\n";
-        exit(1);
-    }
-    this->APIKEY = apikey.value();
+    std::cout << "Starting UseCase\n";
+    this->APIKEY = arg1;
+    this->TB_ACCESSTOKEN = arg2;
+    /* std::optional<std::string> apikey = this->get_api_key(); */
+    /* if (!apikey.has_value()) */
+    /* { */
+    /*     std::cout << "Someting went wrong with the stockprice apikey\n"; */
+    /*     exit(1); */
+    /* } */
+    /* this->APIKEY = apikey.value(); */
 
-    std::optional<std::string> tb_apikey = this->get_TB_ACCESTOKEN();
-    if (!tb_apikey.has_value())
-    {
-        std::cout << "Someting went wrong with the ThingsBoard apikey\n";
-        exit(1);
-    }
-    this->TB_URL.append(tb_apikey.value());
+    /* std::optional<std::string> tb_apikey = this->get_TB_ACCESTOKEN(); */
+    /* if (!tb_apikey.has_value()) */
+    /* { */
+    /*     std::cout << "Someting went wrong with the ThingsBoard apikey\n"; */
+    /*     exit(1); */
+    /* } */
+    this->TB_URL.append(this->TB_ACCESSTOKEN);
     this->TB_URL.append("/telemetry");
-    this->TB_ACCESSTOKEN = tb_apikey.value();
+    /* this->TB_ACCESSTOKEN = tb_apikey.value(); */
 
     /* return; */
-    auto test = this->get_stock_price();
-    if (!test.has_value())
-    {
-        std::cout << "Someting went wrong with the getting stock price\n";
-        exit(1);
-    }
-    std::cout << test->first << std::endl;
-    std::cout << test->second << std::endl;
-    this->send_ThingsBoard(test.value());
+    /* auto test = this->get_stock_price(); */
+    /* if (!test.has_value()) */
+    /* { */
+    /*     std::cout << "Someting went wrong with the getting stock price\n"; */
+    /*     exit(1); */
+    /* } */
+    /* std::cout << test->first << std::endl; */
+    /* std::cout << test->second << std::endl; */
+    /* this->send_ThingsBoard(test.value()); */
     /* std::cout << test->first << std::endl; */
     /* std::cout << test->second << std::endl; */
 };
@@ -111,10 +116,11 @@ void Project::update_ThingBoard()
         std::cout << "Could not send to ThingsBoard\n";
         return;
     }
-    std::cout << price->first << std::endl;
+    std::cout << "Lowest price: " << price->first << " Highest price: ";
     std::cout << price->second << std::endl;
 
     //sleep()
+    std::cout << "feeling sleepy...";
     std::this_thread::sleep_for(60s);
 }
 
@@ -158,7 +164,7 @@ std::optional<std::string> Project::get_TB_ACCESTOKEN()
     /* std::string apikey; */
     try
     {
-        result = (std::string) getenv("TB_ACCESSTOKEN");
+        result = (std::string) std::getenv("TB_ACCESSTOKEN");
         /* std::getline(envfile, apikey, '='); */
         /* std::getline(envfile, apikey, '\n'); */
         /* std::getline(envfile, apikey, '='); */
@@ -181,7 +187,7 @@ std::optional<std::string> Project::get_api_key()
     /* std::string apikey; */
     try
     {
-        result = (std::string)getenv("APIKEY");
+        result = (std::string) std::getenv("APIKEY");
         /* std::getline(envfile, apikey, '='); */
         /* std::getline(envfile, apikey, '\n'); */
     }
@@ -223,9 +229,14 @@ std::optional<std::pair<f64,f64>> Project::get_stock_price()
     return price;
 }
 
-int main(void)
+int main(int argc, char* argv[])
 {
-    Project temp = Project();
+    if (argc < 3)
+    {
+        std::cout << "not enough arguments: " << argc << std::endl;
+        return 1;
+    }
+    Project temp = Project((std::string)argv[1], (std::string)argv[2]);
     for(;;)
         temp.update_ThingBoard();
 }
