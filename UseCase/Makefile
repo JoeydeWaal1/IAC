@@ -3,6 +3,7 @@ LD  =  clang++
 
 CCFLAGS  = -std=c++2a
 CCFLAGS += -Iinclude
+CCFLAGS += -lcurl
 
 LINKFLAGS  = -lcurl
 
