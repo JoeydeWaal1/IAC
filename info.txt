@@ -1,0 +1,1 @@
+highest, lowest price link = https://api.polygon.io/v2/aggs/ticker/AAPL/prev?adjusted=false&apiKey=p5irtn38gZv1_IX4pBKBCLYqTCHC4dIf
