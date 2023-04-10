@@ -152,42 +152,44 @@ std::optional<std::pair<f64,f64>> Project::parse_price(std::string input)
 std::optional<std::string> Project::get_TB_ACCESTOKEN()
 {
     std::string result;
-    std::ifstream envfile(".env");
-    if (!envfile.is_open())
-        return std::nullopt;
-    std::string apikey;
+    /* std::ifstream envfile(".env"); */
+    /* if (!envfile.is_open()) */
+    /*     return std::nullopt; */
+    /* std::string apikey; */
     try
     {
-        std::getline(envfile, apikey, '=');
-        std::getline(envfile, apikey, '\n');
-        std::getline(envfile, apikey, '=');
-        std::getline(envfile, apikey, '\n');
+        result = getenv("TB_ACCESSTOKEN");
+        /* std::getline(envfile, apikey, '='); */
+        /* std::getline(envfile, apikey, '\n'); */
+        /* std::getline(envfile, apikey, '='); */
+        /* std::getline(envfile, apikey, '\n'); */
         /* std::cout << apikey << std::endl; */
     }
     catch (...)
     {
         return std::nullopt;
     }
-    return apikey;
+    return result;
 }
 
 std::optional<std::string> Project::get_api_key()
 {
     std::string result;
-    std::ifstream envfile(".env");
-    if (!envfile.is_open())
-        return std::nullopt;
-    std::string apikey;
+    /* std::ifstream envfile(".env"); */
+    /* if (!envfile.is_open()) */
+    /*     return std::nullopt; */
+    /* std::string apikey; */
     try
     {
-        std::getline(envfile, apikey, '=');
-        std::getline(envfile, apikey, '\n');
+        result = getenv("APIKEY");
+        /* std::getline(envfile, apikey, '='); */
+        /* std::getline(envfile, apikey, '\n'); */
     }
     catch (...)
     {
         return std::nullopt;
     }
-    return apikey;
+    return result;
 }
 
 size_t Project::WriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
