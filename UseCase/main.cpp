@@ -39,25 +39,9 @@ Project::Project(std::string arg1, std::string arg2)
     std::cout << "Starting UseCase\n";
     this->APIKEY = arg1;
     this->TB_ACCESSTOKEN = arg2;
-    /* std::optional<std::string> apikey = this->get_api_key(); */
-    /* if (!apikey.has_value()) */
-    /* { */
-    /*     std::cout << "Someting went wrong with the stockprice apikey\n"; */
-    /*     exit(1); */
-    /* } */
-    /* this->APIKEY = apikey.value(); */
-
-    /* std::optional<std::string> tb_apikey = this->get_TB_ACCESTOKEN(); */
-    /* if (!tb_apikey.has_value()) */
-    /* { */
-    /*     std::cout << "Someting went wrong with the ThingsBoard apikey\n"; */
-    /*     exit(1); */
-    /* } */
     this->TB_URL.append(this->TB_ACCESSTOKEN);
     this->TB_URL.append("/telemetry");
-    /* this->TB_ACCESSTOKEN = tb_apikey.value(); */
 
-    /* return; */
     /* auto test = this->get_stock_price(); */
     /* if (!test.has_value()) */
     /* { */
@@ -158,18 +142,9 @@ std::optional<std::pair<f64,f64>> Project::parse_price(std::string input)
 std::optional<std::string> Project::get_TB_ACCESTOKEN()
 {
     std::string result;
-    /* std::ifstream envfile(".env"); */
-    /* if (!envfile.is_open()) */
-    /*     return std::nullopt; */
-    /* std::string apikey; */
     try
     {
         result = (std::string) std::getenv("TB_ACCESSTOKEN");
-        /* std::getline(envfile, apikey, '='); */
-        /* std::getline(envfile, apikey, '\n'); */
-        /* std::getline(envfile, apikey, '='); */
-        /* std::getline(envfile, apikey, '\n'); */
-        /* std::cout << apikey << std::endl; */
     }
     catch (...)
     {
@@ -181,15 +156,9 @@ std::optional<std::string> Project::get_TB_ACCESTOKEN()
 std::optional<std::string> Project::get_api_key()
 {
     std::string result;
-    /* std::ifstream envfile(".env"); */
-    /* if (!envfile.is_open()) */
-    /*     return std::nullopt; */
-    /* std::string apikey; */
     try
     {
         result = (std::string) std::getenv("APIKEY");
-        /* std::getline(envfile, apikey, '='); */
-        /* std::getline(envfile, apikey, '\n'); */
     }
     catch (...)
     {
@@ -231,12 +200,13 @@ std::optional<std::pair<f64,f64>> Project::get_stock_price()
 
 int main(int argc, char* argv[])
 {
-    if (argc < 3)
-    {
-        std::cout << "not enough arguments: " << argc << std::endl;
-        return 1;
-    }
-    Project temp = Project((std::string)argv[1], (std::string)argv[2]);
+    std::string arg1 = argv[1];
+    std::string arg2 = argv[2];
+    std::cout << arg1 << " " << arg2 << "\n";
+    std::cout << "Init brr brr\n";
+
+    Project* temp = new Project(arg1, arg2);
+    std::cout << "Done init Project obj\n";
     for(;;)
-        temp.update_ThingBoard();
+        temp->update_ThingBoard();
 }
