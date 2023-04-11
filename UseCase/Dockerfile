@@ -12,8 +12,5 @@ RUN apk add libc-dev
 COPY main.cpp ./main.cpp
 COPY Makefile ./Makefile
 COPY start.sh start.sh
-RUN make
 
-
-CMD ./main ${APIKEY} ${TB_ACCESSTOKEN}
- # ["./main",${APIKEY},${TB_ACCESSTOKEN}]
+ENTRYPOINT ["./start.sh"]

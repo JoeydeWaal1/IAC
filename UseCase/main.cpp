@@ -6,6 +6,7 @@
 #include <optional>
 #include <utility>
 #include <thread>
+#include <chrono>
 
 
 using namespace std::literals;
@@ -18,15 +19,18 @@ class Project
     public:
         Project();
         Project(std::string arg1, std::string arg2);
+
         std::optional<std::string>        get_api_key();
         std::optional<std::pair<f64,f64>> get_stock_price();
-        void update_ThingBoard();
+        void                              update_ThingBoard();
+        inline void                       sleep();
+        inline void                       sleep(int seconds);
     private:
         std::string APIKEY;
         std::string TB_USERNAME    = "tenant@thingsboard.org";
         std::string TB_PASSWORD    = "tenant";
         std::string TB_ACCESSTOKEN;
-        std::string TB_URL         = "http://localhost:8080/api/v1/";
+        std::string TB_URL         = "http://mytb:9090/api/v1/";
 
         inline std::optional<std::pair<f64,f64>> parse_price(std::string input);
         static size_t                            WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
@@ -36,24 +40,30 @@ class Project
 
 Project::Project(std::string arg1, std::string arg2)
 {
-    std::cout << "Starting UseCase\n";
     this->APIKEY = arg1;
     this->TB_ACCESSTOKEN = arg2;
     this->TB_URL.append(this->TB_ACCESSTOKEN);
     this->TB_URL.append("/telemetry");
 
-    /* auto test = this->get_stock_price(); */
-    /* if (!test.has_value()) */
-    /* { */
-    /*     std::cout << "Someting went wrong with the getting stock price\n"; */
-    /*     exit(1); */
-    /* } */
-    /* std::cout << test->first << std::endl; */
-    /* std::cout << test->second << std::endl; */
-    /* this->send_ThingsBoard(test.value()); */
-    /* std::cout << test->first << std::endl; */
-    /* std::cout << test->second << std::endl; */
+    auto test = this->get_stock_price();
+    if (!test.has_value())
+        std::cout << "Someting went wrong with the getting stock price\nCheck APIKEY";
+    if (!this->send_ThingsBoard(test.value()))
+    {
+        std::cout << "Waiting for ThingBoard container\n";
+        this->sleep(180);
+    }
 };
+
+void Project::sleep()
+{
+    std::this_thread::sleep_for(60s);
+}
+
+void Project::sleep(int seconds)
+{
+    std::this_thread::sleep_for((std::chrono::seconds)seconds);
+}
 
 bool Project::send_ThingsBoard(std::pair<f64,f64> price)
 {
@@ -83,10 +93,6 @@ bool Project::send_ThingsBoard(std::pair<f64,f64> price)
     curl_easy_cleanup(curl);
     if (res)
         return false;
-
-    /* auto price = this->parse_price(readBuffer); */
-    //todo: implement this
-    std::cout << readBuffer << std::endl;
     return true;
 }
 
@@ -94,18 +100,12 @@ void Project::update_ThingBoard()
 {
     auto price = this->get_stock_price();
     if (!price.has_value())
-        return;
-    if (!this->send_ThingsBoard(price.value()))
-    {
+        std::cout << "Could not fetch price (check APIKEY)\n";
+    else if (!this->send_ThingsBoard(price.value()))
         std::cout << "Could not send to ThingsBoard\n";
-        return;
-    }
-    std::cout << "Lowest price: " << price->first << " Highest price: ";
-    std::cout << price->second << std::endl;
-
-    //sleep()
-    std::cout << "feeling sleepy...";
-    std::this_thread::sleep_for(60s);
+    else
+        std::cout << "Updated ThingsBoard!\n";
+    this->sleep();
 }
 
 std::optional<std::pair<f64,f64>> Project::parse_price(std::string input)
@@ -200,13 +200,7 @@ std::optional<std::pair<f64,f64>> Project::get_stock_price()
 
 int main(int argc, char* argv[])
 {
-    std::string arg1 = argv[1];
-    std::string arg2 = argv[2];
-    std::cout << arg1 << " " << arg2 << "\n";
-    std::cout << "Init brr brr\n";
-
-    Project* temp = new Project(arg1, arg2);
-    std::cout << "Done init Project obj\n";
+    Project temp = Project((std::string)argv[1], (std::string)argv[2]);
     for(;;)
-        temp->update_ThingBoard();
+        temp.update_ThingBoard();
 }

@@ -7,6 +7,8 @@ services:
     environment:
       - APIKEY = ${APIKEY}
       - TB_ACCESSTOKEN = ${TB_ACCESSTOKEN}
+    networks:
+      - network1
   mytb:
     restart: always
     image: joeydewaal/tb-base
@@ -20,3 +22,9 @@ services:
     volumes:
       - ~/.mytb-data:/data
       - ~/.mytb-logs:/var/log/thingsboard
+    networks:
+      - network1
+
+networks:
+  network1:
+    name: net
