@@ -1,0 +1,6 @@
+-- Ansible dependencies
+
+-git
+-Docker
+
+https://daksh-jain00.medium.com/provision-docker-on-multiple-os-using-ansible-de4487e9df06
