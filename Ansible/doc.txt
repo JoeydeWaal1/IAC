@@ -1,0 +1,1 @@
+ssh-copy-id joey@192.168.29

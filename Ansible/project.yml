@@ -1,0 +1,7 @@
+---
+- hosts: joey
+  roles:
+    - role: docker-install
+      vars:
+        api_key: "mijn api key"
+
