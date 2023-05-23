@@ -3,4 +3,4 @@
   roles:
     - role: docker-install
       vars:
-        api_key: "mijn api key"
+        api_key: "oJPdwCiMLi1SSSOr4QLE1KE7lfcBLj9b"

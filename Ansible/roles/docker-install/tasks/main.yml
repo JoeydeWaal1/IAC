@@ -22,18 +22,49 @@
   ansible.builtin.debug:
     msg: "{{ username.stdout }}"
 
-- copy:
-    src:  "~/.ssh/id_rsa"
-    dest: "/home/{{ username.stdout }}/id_rsa"
-    owner: "{{ username.stdout }}"
-    mode: "0400"
+    #- copy:
+    #src:  "~/.ssh/id_rsa"
+    #dest: "/home/{{ username.stdout }}/id_rsa"
+    #owner: "{{ username.stdout }}"
+    #mode: "0400"
 
-- name: Cloning repo
-  ansible.builtin.git:
-    key_file: "/home/{{ username.stdout }}/id_rsa"
-    repo: git@github.com:JoeydeWaal1/IAC.git
-    dest: "/home/{{ username.stdout }}/IAC"
-    clone: yes
+    #- name: Cloning repo
+    #ansible.builtin.git:
+    #key_file: "/home/{{ username.stdout }}/id_rsa"
+    #repo: git@github.com:JoeydeWaal1/IAC.git
+    #dest: "/home/{{ username.stdout }}/IAC"
+    #clone: yes
 
-- name: run Docker compose up
-  shell: docker-compose -f "/home/{{ username.stdout }}/IAC/Docker/docker-compose.yml" up
+- name: docker compose
+  community.docker.docker_compose:
+    project_name: project_IAC
+    definition:
+      version: '3.0'
+      services:
+        usecase:
+          image: joeydewaal/usecase
+          env_file:
+            - .env
+          environment:
+            - APIKEY = "{{ api_key }}"
+            - TB_ACCESSTOKEN = Q537PNgCtg92vhOF0MW1
+          networks:
+            - network1
+        mytb:
+          restart: always
+          image: joeydewaal/tb-base
+          ports:
+            - "8080:9090"
+            - "1883:1883"
+            - "7070:7070"
+            - "5683-5688:5683-5688/udp"
+          environment:
+            TB_QUEUE_TYPE: in-memory
+          volumes:
+            - ~/.mytb-data:/data
+            - ~/.mytb-logs:/var/log/thingsboard
+          networks:
+            - network1
+        networks:
+          network1:
+            name: net
