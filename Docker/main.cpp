@@ -30,7 +30,7 @@ class Project
         std::string TB_USERNAME    = "tenant@thingsboard.org";
         std::string TB_PASSWORD    = "tenant";
         std::string TB_ACCESSTOKEN;
-        std::string TB_URL         = "http://mytb:9090/api/v1/";
+        std::string TB_URL         = "http://thingsboard:9090/api/v1/";
 
         inline std::optional<std::pair<f64,f64>> parse_price(std::string input);
         static size_t                            WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
@@ -51,7 +51,6 @@ Project::Project(std::string arg1, std::string arg2)
     if (!this->send_ThingsBoard(test.value()))
     {
         std::cout << "Waiting for ThingBoard container\n";
-        this->sleep(180);
     }
 };
 
@@ -83,6 +82,8 @@ bool Project::send_ThingsBoard(std::pair<f64,f64> price)
 
     struct curl_slist* headers = NULL;
     headers = curl_slist_append(headers, "Content-Type: application/json");
+    std::string auth = "Authorization: Bearer " + this->TB_ACCESSTOKEN;
+    headers = curl_slist_append(headers, auth.c_str());
 
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_URL, this->TB_URL.c_str());

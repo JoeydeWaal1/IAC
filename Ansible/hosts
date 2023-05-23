@@ -1,5 +1,5 @@
 [joey]
-192.168.0.17
+192.168.0.15
 [joey:vars]
 ansible_password=root
 ansible_become_password=root
