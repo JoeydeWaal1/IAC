@@ -1,32 +1,22 @@
-- name: curl,...
-  ignore_errors: true
-  ansible.builtin.yum:
-    name:
-      - ca-certificates
-      - curl
-      - gnupg
+- name: Install docker and docker-compose
+  become: yes 
+  apt:
+    name: docker-compose
     state: latest
-    update_cache: true
 
-- name: keyrings
-  ansible.builtin.command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-
-- name: keyrings
-  ansible.builtin.command: chmod a+r /etc/apt/keyrings/docker.gpg
-
-- name: keyrings
-  ansible.builtin.command: echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-
-- name: keyrings
-  ansible.builtin.command: apt-get update
-
-- name: Install Docker
-  ignore_errors: true
-  ansible.builtin.apt:
-    name:
-      - docker-ce
-      - docker-ce-cli
-      - containerd.io
+- name: Install pip
+  become: yes 
+  apt:
+    name: pip
     state: latest
-    update_cache: true
+
+- name: Install Docker Module for Python
+  become: yes 
+  pip:
+    name: docker
+
+- name: Install git
+  become: yes 
+  apt:
+    name: git
+    state: latest

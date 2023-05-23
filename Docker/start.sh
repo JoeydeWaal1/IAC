@@ -1,3 +1,3 @@
 #!/bin/sh
 make
-./main $APIKEY $TB_ACCESSTOKEN
+./main $APIKEY Q537PNgCtg92vhOF0MW1

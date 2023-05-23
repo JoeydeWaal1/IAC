@@ -6,7 +6,7 @@ services:
       - .env
     environment:
       - APIKEY = ${APIKEY}
-      - TB_ACCESSTOKEN = ${TB_ACCESSTOKEN}
+      - TB_ACCESSTOKEN = Q537PNgCtg92vhOF0MW1
     networks:
       - network1
   mytb:

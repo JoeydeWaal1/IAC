@@ -1,6 +1,8 @@
 - name: show os family
   ansible.builtin.debug:
     msg: "{{  ansible_facts['os_family']|lower }}"
+
+
 - name: Import tasks for redhat
   import_tasks: redhat.yml
   when: ansible_facts['os_family']|lower == 'rocky'
@@ -8,3 +10,30 @@
 - name: Import tasks for debian
   import_tasks: debian.yml
   when: ansible_facts['os_family']|lower == 'debian'
+
+
+
+- name: get the username running the deploy
+  become: false
+  local_action: command whoami
+  register: username
+
+- name: show username
+  ansible.builtin.debug:
+    msg: "{{ username.stdout }}"
+
+- copy:
+    src:  "~/.ssh/id_rsa"
+    dest: "/home/{{ username.stdout }}/id_rsa"
+    owner: "{{ username.stdout }}"
+    mode: "0400"
+
+- name: Cloning repo
+  ansible.builtin.git:
+    key_file: "/home/{{ username.stdout }}/id_rsa"
+    repo: git@github.com:JoeydeWaal1/IAC.git
+    dest: "/home/{{ username.stdout }}/IAC"
+    clone: yes
+
+- name: run Docker compose up
+  shell: docker-compose -f "/home/{{ username.stdout }}/IAC/Docker/docker-compose.yml" up

@@ -40,3 +40,8 @@
 - name: install docker-py
   ansible.builtin.pip:
     name: docker-py
+
+- name: Install git
+  ansible.builtin.yum:
+    name: yum-utils
+    state: present
