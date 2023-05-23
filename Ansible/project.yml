@@ -1,6 +1,4 @@
 ---
 - hosts: joey
   roles:
-    - role: docker-install
-      vars:
-        api_key: "oJPdwCiMLi1SSSOr4QLE1KE7lfcBLj9b"
+    - role: IAC-project

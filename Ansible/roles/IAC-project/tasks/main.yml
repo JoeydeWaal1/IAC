@@ -1,0 +1,84 @@
+- name: show os family
+  ansible.builtin.debug:
+    msg: "{{  ansible_facts['os_family']|lower }}"
+
+
+#os specific
+- name: Import tasks for redhat
+  import_tasks: redhat.yml
+  when: ansible_facts['os_family']|lower == 'rocky'
+
+- name: Import tasks for debian
+  import_tasks: debian.yml
+  when: ansible_facts['os_family']|lower == 'debian'
+
+
+
+- name: get the username running the deploy
+  become: false
+  local_action: command whoami
+  register: username
+
+- name: add docker network
+  community.docker.docker_network:
+    name: net
+
+- name: Thingsboard container
+  community.docker.docker_container:
+    name: thingsboard
+    image: joeydewaal/tb-base
+    ports:
+      - "8080:9090"
+      - "1883:1883"
+      - "7070:7070"
+      - "5683-5688:5683-5688/udp"
+    volumes:
+      - "/home/{{ username.stdout }}/.mytb-data:/data"
+      - "/home/{{ username.stdout }}/.mytb-logs:/var/log/thingsboard"
+    networks:
+      - name: net
+    env:
+      TB_QUEUE_TYPE: in-memory
+    restart_policy: always
+
+
+
+
+
+- name: uitleg
+  pause:
+    prompt: "Ga naar https://https://polygon.io/\nMaak hier een account en plak vervolgens de api key in de console"
+    echo: yes
+  register: api_key
+- name: s
+  set_fact:
+    api_key: "{{ api_key.user_input }}"
+
+- name: show os family
+  ansible.builtin.debug:
+    msg: "{{ TB_ACCESSTOKEN }}"
+
+- name: uitleg
+  pause:
+    prompt: "Voor u vooruit kunt gaan moet u nog enkele stappen uitvoeren\nGa naar http://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:8080/\nDit kan enkele minuten duren, U kunt inloggen met tenant@thingsboard.org met wachtwoord tenant\nHierna klikt u links op 'Devices'\nRechtsboven klikt u dan op het plusje.\nDan 'Add new device'\nBij 'Name*' mag u een naam geven\nDan bij credentials vinkt u het kruisje aan bij 'Add credentials'\nBij 'Access token*' mag u een access token ingeven, deze plakt u dan onder ook in de console."
+    echo: yes
+  register: TB_ACCESSTOKEN
+- name: s
+  set_fact:
+    TB_ACCESSTOKEN: "{{ TB_ACCESSTOKEN.user_input }}"
+
+- name: show os family
+  ansible.builtin.debug:
+    msg: "{{ TB_ACCESSTOKEN }}"
+
+
+- name: Thingsboard container
+  community.docker.docker_container:
+    name: thingsboard
+    image: joeydewaal/usecase
+    env:
+      - APIKEY="{{ api_key }}"
+      - TB_ACCESSTOKEN="{{ TB_ACCESSTOKEN }}"
+    networks:
+      - name: net
+    restart_policy: always
