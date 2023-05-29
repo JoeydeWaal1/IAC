@@ -14,9 +14,3 @@
   become: yes 
   pip:
     name: docker
-
-- name: Install git
-  become: yes 
-  apt:
-    name: git
-    state: latest

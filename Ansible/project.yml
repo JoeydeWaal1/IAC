@@ -2,3 +2,5 @@
 - hosts: joey
   roles:
     - role: IAC-project
+      vars:
+        api_key: "dp0luKoecKa3qtKZGE7VS1NCYlgz0erc"
