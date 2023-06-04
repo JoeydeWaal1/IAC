@@ -3,4 +3,5 @@
   roles:
     - role: IAC-project
       vars:
-        api_key: "dp0luKoecKa3qtKZGE7VS1NCYlgz0erc"
+        api_key: "ziUzGXKcxEWqbFO8GCYgKf6psfwbD9cs"
+        api_port: "8081"
