@@ -5,10 +5,36 @@
     permanent: true
     state: disabled
 
-- name: close tcp ports
+- name: close RDP port
   become: true
   ansible.posix.firewalld:
-    port: 0-65535/tcp
+    port: 3389/tcp
+    permanent: true
+    state: disabled
+
+- name: Close FTP port
+  become: true
+  ansible.posix.firewalld:
+    port: 20-21/tcp
+    permanent: true
+    state: disabled
+
+- name: Close Telnet port
+  become: true
+  ansible.posix.firewalld:
+    port: 23/tcp
+    permanent: true
+    state: disabled
+
+- become: true
+  ansible.posix.firewalld:
+    port: 137/tcp
+    permanent: true
+    state: disabled
+
+- become: true
+  ansible.posix.firewalld:
+    port: 139/tcp
     permanent: true
     state: disabled
 
@@ -62,7 +88,7 @@
 
 - become: yes
   ansible.builtin.yum:
-    name: '*'
+    name: "*"
     state: latest
 
 - become: yes
