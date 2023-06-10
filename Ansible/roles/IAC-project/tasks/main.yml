@@ -1,32 +1,14 @@
-- name: show os family
-  ansible.builtin.debug:
-    msg: "{{  ansible_facts['os_family']|lower }}" 
-
-#os specific
-- name: Import tasks for redhat
-  import_tasks: redhat.yml
+- import_tasks: redhat.yml
   when: ansible_facts['os_family']|lower == 'rocky'
 
-- name: Import tasks for debian
-  import_tasks: debian.yml
+- import_tasks: debian.yml
   when: ansible_facts['os_family']|lower == 'debian'
 
-  #- name: change groups
-  #become: true
-  #shell: usermod -aG docker $USER
-
-
-- name: get the username running the deploy
-  become: false
-  local_action: command whoami
-  register: username
-
-- name: add docker network
-  become: true
+- become: true
   community.docker.docker_network:
     name: net
 
-- name: Thingsboard
+- name: start Thingsboard container
   become: true
   community.docker.docker_container:
     name: thingsboard
@@ -36,7 +18,8 @@
     networks:
       - name: net
     restart_policy: always
-- name: usecase
+
+- name: start usecase container
   become: true
   community.docker.docker_container:
     name: usecase

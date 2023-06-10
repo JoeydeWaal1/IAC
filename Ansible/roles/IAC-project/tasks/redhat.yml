@@ -1,11 +1,31 @@
+- name: close udp ports
+  become: true
+  ansible.posix.firewalld:
+    port: 0-65535/udp
+    permanent: true
+    state: disabled
+
+- name: close tcp ports
+  become: true
+  ansible.posix.firewalld:
+    port: 0-65535/tcp
+    permanent: true
+    state: disabled
+
+- name: "Allow port {{ api_port }} (port of the server)"
+  become: true
+  ansible.posix.firewalld:
+    port: "{{ api_port }}/tcp"
+    permanent: true
+    state: enabled
+
 - name: Install yum-utils
   become: yes
   ansible.builtin.yum:
     name: yum-utils
     state: present
 
-- name: Add repository into repo.d list
-  become: yes
+- become: yes
   ansible.builtin.yum_repository:
     name: docker
     description: docker repository
@@ -24,38 +44,32 @@
       - containerd.io
     state: latest
 
-- name: Start Docker
-  become: yes
+- become: yes
   ansible.builtin.service:
     name: "docker"
     enabled: true
     state: started
 
-- name: install python
-  become: yes
+- become: yes
   ansible.builtin.package:
     name: python3
     state: present
 
-- name: install epel
-  become: yes
+- become: yes
   ansible.builtin.yum:
     name: epel-release
     state: present
 
-- name: Upgrade all packages
-  become: yes
+- become: yes
   ansible.builtin.yum:
     name: '*'
     state: latest
 
-- name: install pip
-  become: yes
+- become: yes
   ansible.builtin.yum:
     name: python3-pip
     state: present
 
-- name: install docker-py
-  become: yes
+- become: yes
   ansible.builtin.pip:
     name: docker-py

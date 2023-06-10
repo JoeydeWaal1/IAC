@@ -1,16 +1,14 @@
-- name: Install docker and docker-compose
+- name: Install docker
   become: yes 
   apt:
     name: docker-compose
     state: latest
 
-- name: Install pip
-  become: yes 
+- become: yes 
   apt:
     name: pip
     state: latest
 
-- name: Install Docker Module for Python
-  become: yes 
+- become: yes 
   pip:
     name: docker
